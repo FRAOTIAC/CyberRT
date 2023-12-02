@@ -69,19 +69,29 @@ CRoutine::CRoutine(const std::function<void()> &func) : func_(func) {
 CRoutine::~CRoutine() { context_ = nullptr; }
 
 RoutineState CRoutine::Resume() {
+  ADEBUG << "Resume routine: " << id_;
   if (cyber_unlikely(force_stop_)) {
     state_ = RoutineState::FINISHED;
     return state_;
   }
+  ADEBUG << "Routine is not force stop";
 
   if (cyber_unlikely(state_ != RoutineState::READY)) {
     AERROR << "Invalid Routine State!";
     return state_;
   }
+  ADEBUG << "Before swap context";
 
   current_routine_ = this;
+  if (current_routine_ == nullptr) {
+    AERROR << "current routine is nullptr";
+  } else {
+    ADEBUG << "current routine is not nullptr";
+  }
   SwapContext(GetMainStack(), GetStack());
+  ADEBUG << "After swap context";
   current_routine_ = nullptr;
+  ADEBUG << "Set current routine to nullptr";
   return state_;
 }
 

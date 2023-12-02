@@ -56,13 +56,13 @@ function build_fastdds() {
   # make -j$(nproc)
   # make install
   # popd
-
+  echo "fastdds arch: ${ARCH}"
   local INSTALL_PATH="$CURRENT_PATH/../third_party/"
-  if [[ "${ARCH}" == "x86_64" ]]; then
-    PKG_NAME="fast-rtps-1.5.0-1.prebuilt.x86_64.tar.gz"
-  else # aarch64
+#  if [[ "${ARCH}" == "x86_64" ]]; then
+#    PKG_NAME="fast-rtps-1.5.0-1.prebuilt.x86_64.tar.gz"
+#  else # aarch64
     PKG_NAME="fast-rtps-1.5.0-1.prebuilt.aarch64.tar.gz"
-  fi
+#  fi
   DOWNLOAD_LINK="https://apollo-system.cdn.bcebos.com/archive/6.0/${PKG_NAME}"
   if [ -e $INSTALL_PATH/$PKG_NAME ]
   then

@@ -5,8 +5,15 @@ project(cyber VERSION 7.0.0)
 set(CMAKE_CXX_STANDARD 14)
 set(TARGET_NAME ${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+#set(CMAKE_BUILD_TYPE Debug) # Debug or Release
+set(CMAKE_BUILD_TYPE Release) # Debug or Release
+# set fPIC
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" CACHE STRING "Set C++ Compiler Flags" FORCE)
 enable_language(ASM)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
@@ -28,6 +35,7 @@ find_package(Poco REQUIRED COMPONENTS Foundation)
 find_package(glog REQUIRED)
 # find_package(Python REQUIRED COMPONENTS Interpreter Development)
 pkg_check_modules(Python REQUIRED python3)
+pkg_check_modules(Uuid REQUIRED uuid)
 find_package(Protobuf REQUIRED)
 pkg_check_modules(Gflags REQUIRED gflags)
 
@@ -36,7 +44,9 @@ set(Python_VERSION "${Python_VERSION}")
 set(CYBER_PYTHON_PATH "lib/python${Python_VERSION}/site-packages/cyber/python")
 set(CYBER_PYTHON_INTERNAL_PATH "${CYBER_PYTHON_PATH}/internal")
 set(CYBER_PYTHON_PROTOBUF_PATH "lib/python${Python_VERSION}/site-packages/cyber/proto")
-
+if(NOT DEFINED Uuid_LIBRARIES)
+  set(Uuid_LIBRARIES "uuid")
+endif()
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${fastcdr_INCLUDE_DIR}
@@ -54,6 +64,10 @@ link_directories(
     ${Glog_LIBRARY_DIRS}
     ${Gflags_LIBRARY_DIRS}
 )
+#export CFLAGS=" -Wl,--whole-archive -Wl,--no-whole-archive -DASIO_STANDALONE"
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--whole-archive -Wl,--no-whole-archive -DASIO_STANDALONE" CACHE STRING "Set C++ Compiler Flags" FORCE)
+## set O0 for debug
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g" CACHE STRING "Set C++ Compiler Flags" FORCE)
 
 file(GLOB CYBER_SRCS 
     "cyber/base/*.cc"
@@ -114,6 +128,7 @@ ENDFOREACH()
 
 list(FILTER CYBER_SRCS EXCLUDE REGEX .*test[.]cc)
 
+#add_library(${TARGET_NAME}
 add_library(${TARGET_NAME} SHARED
   ${ALL_PROTO_HDRS}
   ${ALL_PROTO_SRCS}
@@ -186,7 +201,7 @@ else ()
       if (CPACK_PACKAGE_ARCHITECTURE MATCHES "x86_64")
             set (CPACK_PACKAGE_ARCHITECTURE amd64)
       else ()
-        set (CPACK_PACKAGE_ARCHITECTURE i386)
+        set (CPACK_PACKAGE_ARCHITECTURE arm64)
       endif ()
     endif ()
   endif ()

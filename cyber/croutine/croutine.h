@@ -24,6 +24,7 @@
 #include <mutex>
 #include <set>
 #include <string>
+#include <iostream>
 
 #include "cyber/common/log.h"
 #include "cyber/croutine/detail/routine_context.h"
@@ -132,17 +133,34 @@ inline void CRoutine::Yield() {
   SwapContext(GetCurrentRoutine()->GetStack(), GetMainStack());
 }
 
-inline CRoutine *CRoutine::GetCurrentRoutine() { return current_routine_; }
+//inline CRoutine *CRoutine::GetCurrentRoutine() {
+inline CRoutine *CRoutine::GetCurrentRoutine() {
+  if (current_routine_ == nullptr) {
+    AERROR << "current routine is null";
+  } else{
+    ADEBUG << "current routine is not null";
+  }
+  return current_routine_;
+}
 
-inline char **CRoutine::GetMainStack() { return &main_stack_; }
+inline char **CRoutine::GetMainStack() {
+  ADEBUG << "GetMainStack";
+  return &main_stack_; }
 
-inline RoutineContext *CRoutine::GetContext() { return context_.get(); }
+inline RoutineContext *CRoutine::GetContext() {
+  return context_.get(); }
 
-inline char **CRoutine::GetStack() { return &(context_->sp); }
+inline char **CRoutine::GetStack() {
+  ADEBUG << "GetStack";
+  return &(context_->sp); }
 
 inline void CRoutine::Run() { func_(); }
 
-inline void CRoutine::set_state(const RoutineState &state) { state_ = state; }
+inline void CRoutine::set_state(const RoutineState &state) {
+  ADEBUG << "set_state";
+  state_ = state;
+  ADEBUG << "set_state end";
+}
 
 inline RoutineState CRoutine::state() const { return state_; }
 

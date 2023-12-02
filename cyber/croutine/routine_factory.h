@@ -56,11 +56,20 @@ RoutineFactory CreateRoutineFactory(
     return [=]() {
       std::shared_ptr<M0> msg;
       for (;;) {
-        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+//        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+        auto routine = CRoutine::GetCurrentRoutine();
+        if(routine == nullptr) {
+          AERROR << "routine is nullptr";
+        } else {
+          ADEBUG << "routine is not nullptr";
+          routine->set_state(RoutineState::DATA_WAIT);
+        }
         if (dv->TryFetch(msg)) {
+          ADEBUG << "TryFetch success";
           f(msg);
           CRoutine::Yield(RoutineState::READY);
         } else {
+          ADEBUG << "TryFetch failed";
           CRoutine::Yield();
         }
       }

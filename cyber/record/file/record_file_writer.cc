@@ -140,6 +140,7 @@ bool RecordFileWriter::WriteIndex() {
       }
     }
   }
+
   header_.set_index_position(CurrentPosition());
   if (!WriteSection<proto::Index>(index_)) {
     AERROR << "Write section fail";

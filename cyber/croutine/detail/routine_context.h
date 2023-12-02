@@ -34,6 +34,7 @@ namespace croutine {
 constexpr size_t STACK_SIZE = 2 * 1024 * 1024;
 #if defined __aarch64__
 constexpr size_t REGISTERS_SIZE = 160;
+//constexpr size_t REGISTERS_SIZE = 128;
 #else
 constexpr size_t REGISTERS_SIZE = 56;
 #endif
@@ -50,8 +51,17 @@ struct RoutineContext {
 
 void MakeContext(const func& f1, const void* arg, RoutineContext* ctx);
 
-inline void SwapContext(char** src_sp, char** dest_sp) {
-  ctx_swap(reinterpret_cast<void**>(src_sp), reinterpret_cast<void**>(dest_sp));
+//inline void SwapContext(char** src_sp, char** dest_sp) {
+static inline void SwapContext(char** src_sp, char** dest_sp) {
+
+ADEBUG << "Before SwapContext";
+  if (src_sp != nullptr && dest_sp != nullptr) {
+    ADEBUG << "has not nullptr: " << src_sp << " " << dest_sp;
+    ctx_swap(reinterpret_cast<void**>(src_sp), reinterpret_cast<void**>(dest_sp));
+  } else {
+        ADEBUG << "has nullptr: " << src_sp << " " << dest_sp;
+  }
+ADEBUG << "After SwapContext";
 }
 
 }  // namespace croutine
