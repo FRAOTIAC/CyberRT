@@ -41,7 +41,7 @@ source cross-compile environment
 ```shell
 sudo ./scripts/install.sh aarch64
 ```
-
+CYBER_IP=127.0.0.1;CYBER_DOMAIN_ID=80;CYBER_PATH=/workshop/wsl2_workshop/CyberRT/cmake-build-debug/share/
 > export path
 
 ```shell

@@ -12,7 +12,12 @@ if [ -z "$1" ]; then
 else
   ARCH=$1
 fi
+#ARCH == aarch64 or arm64 then set INSTALL_PREFIX to /opt/bstos/2.3.1.5/sysroots/aarch64-bst-linux/usr/local/
+if [[ "${ARCH}" == "aarch64" ]] || [[ "${ARCH}" == "arm64" ]]; then
+  INSTALL_PREFIX="/opt/bstos/2.3.1.5/sysroots/aarch64-bst-linux/usr/"
+fi
 echo "ARCH: $ARCH"
+
 sleep 3
 
 
@@ -57,7 +62,7 @@ function build_nlohmann_json() {
   download "https://github.com/nlohmann/json.git" "$NAME"
   pushd "$CURRENT_PATH/../third_party/$NAME/"
   mkdir -p build && cd build && rm -rf *
-  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
+  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DJSON_BuildTests=OFF ..
   make install -j$(nproc)
   popd
 }
@@ -92,7 +97,7 @@ function build_fastdds() {
   fi
   pushd $INSTALL_PATH
   tar -zxf ${PKG_NAME}
-  cp -r fast-rtps-1.5.0-1/* ../install
+  cp -r fast-rtps-1.5.0-1/* $INSTALL_PREFIX
   rm -rf fast-rtps-1.5.0-1
   popd
 }
@@ -120,7 +125,7 @@ function build_gfamily() {
   if [ "$ARCH" == "x86_64" ]; then
     CXXFLAGS="-fPIC $CXXFLAGS" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
   elif [ "$ARCH" == "aarch64" ]; then
-    CXXFLAGS="-fPIC $CXXFLAGS" cmake --build=armv8-none-linux -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
+    CXXFLAGS="-fPIC $CXXFLAGS" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   else
       echo "not support $ARCH"
   fi
@@ -145,13 +150,62 @@ function build_gfamily() {
   popd
 }
 
+function build_poco() {
+  echo "############### Build Poco. ################"
+  local NAME="poco"
+  local VERSION="poco-1.8.0.1-release"
+  local TARBALL_URL="https://github.com/pocoproject/poco/archive/${VERSION}.tar.gz"
+  local MD5SUM_EXPECTED="07aa03d7976d0dbc141d95821c104c10"
+  local DOWNLOAD_DIR="$CURRENT_PATH/../third_party"
+  local FOLDERNAME="${NAME}-${VERSION}"
+  local DESIRED_FOLDERNAME="${VERSION}"
+
+  # Download Poco source tarball
+  echo "Downloading Poco source..."
+  wget ${TARBALL_URL} -O "${DOWNLOAD_DIR}/${FOLDERNAME}.tar.gz"
+
+  # MD5 checksum verification
+  echo "MD5 checksum verification..."
+  echo "${MD5SUM_EXPECTED}  ${DOWNLOAD_DIR}/${FOLDERNAME}.tar.gz" | md5sum -c -
+
+  # Prepare the source directory
+  [ -d "${DOWNLOAD_DIR}/${DESIRED_FOLDERNAME}" ] && rm -rf "${DOWNLOAD_DIR}/${DESIRED_FOLDERNAME}"
+  mkdir -p "${DOWNLOAD_DIR}/${DESIRED_FOLDERNAME}"
+  tar -xzf "${DOWNLOAD_DIR}/${FOLDERNAME}.tar.gz" --strip-components=1 -C "${DOWNLOAD_DIR}/${DESIRED_FOLDERNAME}"
+
+  # Compile Poco
+  pushd "${DOWNLOAD_DIR}/${DESIRED_FOLDERNAME}"
+  mkdir -p build && pushd build && rm -rf *
+
+
+  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
+        -DENABLE_CRYPTO:BOOL=OFF \
+        -DENABLE_DATA:BOOL=OFF \
+        -DENABLE_JSON:BOOL=OFF \
+        -DENABLE_MONGODB:BOOL=OFF \
+        -DENABLE_NET:BOOL=OFF \
+        -DENABLE_NETSSL:BOOL=OFF \
+        -DENABLE_PAGECOMPILER_FILE2PAGE:BOOL=OFF \
+        -DENABLE_PAGECOMPILER:BOOL=OFF \
+        -DENABLE_REDIS:BOOL=OFF \
+        -DENABLE_UTIL:BOOL=OFF \
+        -DENABLE_XML:BOOL=OFF \
+        -DENABLE_ZIP:BOOL=OFF \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
+  make install -j$(nproc)
+  popd && popd
+}
+
 function main() {
   echo "############### Install Third Party. ################"
   init
   build_setup
-  build_nlohmann_json
-  build_gfamily
+  if [[ "${ARCH}" == "x86_64" ]]; then
+    build_gfamily
+    build_nlohmann_json
+  fi
   build_fastdds
+  build_poco
   return
 }
 

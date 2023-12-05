@@ -10,7 +10,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 set(CMAKE_BUILD_TYPE Release) # Debug/Release
 
-
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
@@ -23,6 +22,9 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 enable_language(ASM)
 
@@ -35,6 +37,7 @@ else ()
     message("### SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR} ${CROUTINE_FILE}")
 endif () #${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"
 message(STATUS "### CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "### CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(fastrtps REQUIRED)

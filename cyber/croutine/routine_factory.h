@@ -55,8 +55,14 @@ RoutineFactory CreateRoutineFactory(
   factory.create_routine = [=]() {
     return [=]() {
       std::shared_ptr<M0> msg;
-      while(true) {
-        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+      while (true) {
+        auto routine = CRoutine::GetCurrentRoutine();
+        if (cyber_unlikely(routine == nullptr)) {
+          AERROR << "routine is nullptr";
+          CRoutine::Yield();
+        } else {
+          routine->set_state(RoutineState::DATA_WAIT);
+        }
         if (dv->TryFetch(msg)) {
           f(msg);
           CRoutine::Yield(RoutineState::READY);
@@ -78,8 +84,14 @@ RoutineFactory CreateRoutineFactory(
     return [=]() {
       std::shared_ptr<M0> msg0;
       std::shared_ptr<M1> msg1;
-      while(true) {
-        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+      while (true) {
+        auto routine = CRoutine::GetCurrentRoutine();
+        if (cyber_unlikely(routine == nullptr)) {
+          AERROR << "routine is nullptr";
+          CRoutine::Yield();
+        } else {
+          routine->set_state(RoutineState::DATA_WAIT);
+        }
         if (dv->TryFetch(msg0, msg1)) {
           f(msg0, msg1);
           CRoutine::Yield(RoutineState::READY);
@@ -102,8 +114,14 @@ RoutineFactory CreateRoutineFactory(
       std::shared_ptr<M0> msg0;
       std::shared_ptr<M1> msg1;
       std::shared_ptr<M2> msg2;
-      while(true) {
-        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+      while (true) {
+        auto routine = CRoutine::GetCurrentRoutine();
+        if (cyber_unlikely(routine == nullptr)) {
+          AERROR << "routine is nullptr";
+          CRoutine::Yield();
+        } else {
+          routine->set_state(RoutineState::DATA_WAIT);
+        }
         if (dv->TryFetch(msg0, msg1, msg2)) {
           f(msg0, msg1, msg2);
           CRoutine::Yield(RoutineState::READY);
@@ -127,8 +145,14 @@ RoutineFactory CreateRoutineFactory(
       std::shared_ptr<M1> msg1;
       std::shared_ptr<M2> msg2;
       std::shared_ptr<M3> msg3;
-      while(true) {
-        CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
+      while (true) {
+        auto routine = CRoutine::GetCurrentRoutine();
+        if (cyber_unlikely(routine == nullptr)) {
+          AERROR << "routine is nullptr";
+          CRoutine::Yield();
+        } else {
+          routine->set_state(RoutineState::DATA_WAIT);
+        }
         if (dv->TryFetch(msg0, msg1, msg2, msg3)) {
           f(msg0, msg1, msg2, msg3);
           CRoutine::Yield(RoutineState::READY);

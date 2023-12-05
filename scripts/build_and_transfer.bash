@@ -34,8 +34,6 @@ function passwd_scp() {
 }
 
 function transfer() {
-#  DEV_IP="192.168.6.109"
-#  USERNAME="lucas"
   DEV_IP="192.168.6.187"
   USERNAME="root"
   pushd /workshop/wsl2_workshop/CyberRT/build
@@ -61,6 +59,7 @@ function main() {
 
 setup() {
   export LD_LIBRARY_PATH=/mnt/nfs_share/cyber8/usr/local/lib:/mnt/nfs_share/cyber8/install/lib:/usr/lib
+#  export LD_LIBRARY_PATH=/usr/lib/disable:$LD_LIBRARY_PATH
   source /mnt/nfs_share/cyber8/usr/local/setup.bash
 }
 
