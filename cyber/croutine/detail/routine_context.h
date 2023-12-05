@@ -50,8 +50,16 @@ struct RoutineContext {
 
 void MakeContext(const func& f1, const void* arg, RoutineContext* ctx);
 
-inline void SwapContext(char** src_sp, char** dest_sp) {
+static inline void SwapContext(char** src_sp, char** dest_sp) {
+
+//ADEBUG << "Before SwapContext";
+//  if (src_sp != nullptr && dest_sp != nullptr) {
+//    ADEBUG << "has not nullptr: " << src_sp << " " << dest_sp;
   ctx_swap(reinterpret_cast<void**>(src_sp), reinterpret_cast<void**>(dest_sp));
+//  } else {
+//        ADEBUG << "has nullptr: " << src_sp << " " << dest_sp;
+//  }
+//ADEBUG << "After SwapContext";
 }
 
 }  // namespace croutine

@@ -4,7 +4,17 @@ set -e
 
 CURRENT_PATH=$(cd $(dirname $0) && pwd)
 INSTALL_PREFIX="$CURRENT_PATH/../install/"
-ARCH=$(uname -m)
+#ARCH=$(uname -m)
+# get arch from env
+# if input is empty, use uname -m
+if [ -z "$1" ]; then
+  ARCH=$(uname -m)
+else
+  ARCH=$1
+fi
+echo "ARCH: $ARCH"
+sleep 3
+
 
 function download() {
   URL=$1
@@ -35,8 +45,8 @@ function build_setup() {
   local NAME="setup"
   download "https://github.com/minhanghuang/setup.git" "$NAME"
   pushd "$CURRENT_PATH/../third_party/$NAME/"
-  mkdir -p build && cd build
-  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+  mkdir -p build && cd build && rm -rf *
+  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   make install -j$(nproc)
   popd
 }
@@ -46,8 +56,8 @@ function build_nlohmann_json() {
   local NAME="nlohmann_json"
   download "https://github.com/nlohmann/json.git" "$NAME"
   pushd "$CURRENT_PATH/../third_party/$NAME/"
-  mkdir -p build && cd build
-  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+  mkdir -p build && cd build && rm -rf *
+  cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   make install -j$(nproc)
   popd
 }
@@ -67,7 +77,6 @@ function build_fastdds() {
   # make -j$(nproc)
   # make install
   # popd
-
   local INSTALL_PATH="$CURRENT_PATH/../third_party/"
   if [[ "${ARCH}" == "x86_64" ]]; then
     PKG_NAME="fast-rtps-1.5.0-1.prebuilt.x86_64.tar.gz"
@@ -98,19 +107,20 @@ function build_gfamily() {
   # gflags
   pushd "$CURRENT_PATH/../third_party/gflags/"
   git checkout v2.2.0
-  mkdir -p build && cd build
-  CXXFLAGS="-fPIC" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+  mkdir -p build && cd build && rm -rf *
+  CXXFLAGS="-fPIC $CXXFLAGS" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   make install -j$(nproc)
   popd
 
   # glog
   pushd "$CURRENT_PATH/../third_party/glog/"
-  git checkout v0.4.0
-  mkdir -p build && cd build
+#  git checkout v0.4.0
+  git checkout v0.5.0
+  mkdir -p build && cd build && rm -rf *
   if [ "$ARCH" == "x86_64" ]; then
-    CXXFLAGS="-fPIC" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+    CXXFLAGS="-fPIC $CXXFLAGS" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
   elif [ "$ARCH" == "aarch64" ]; then
-    CXXFLAGS="-fPIC" cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+    CXXFLAGS="-fPIC $CXXFLAGS" cmake --build=armv8-none-linux -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   else
       echo "not support $ARCH"
   fi
@@ -120,16 +130,17 @@ function build_gfamily() {
   # googletest
   pushd "$CURRENT_PATH/../third_party/googletest/"
   git checkout release-1.10.0
-  mkdir -p build && cd build
-  CXXFLAGS="-fPIC" cmake -DCMAKE_CXX_FLAGS="-w" -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ..
+  mkdir -p build && cd build && rm -rf *
+  CXXFLAGS="-fPIC $CXXFLAGS" cmake -DCMAKE_CXX_FLAGS="-w" -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   make install -j$(nproc)
   popd
 
   # protobuf
   pushd "$CURRENT_PATH/../third_party/protobuf/"
-  git checkout v3.14.0
-  cd cmake && mkdir -p build && cd build
-  cmake -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+#  git checkout v3.14.0
+  git checkout v3.6.1
+  cd cmake && mkdir -p build && cd build && rm -rf *
+  cmake -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   make install -j$(nproc)
   popd
 }

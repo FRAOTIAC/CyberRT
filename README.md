@@ -33,10 +33,13 @@ cd CyberRT
 
 2. build third party
 
+source cross-compile environment
+
+
 > install
 
 ```shell
-sudo ./scripts/install.sh
+sudo ./scripts/install.sh aarch64
 ```
 
 > export path
@@ -48,9 +51,13 @@ source install/setup.bash
 3. build cyber
 
 ```shell
-mkdir build && cd build
+
+mkdir -p build && cd build 
+rm -rf *
 cmake ..
 make -j$(nproc)
+make package
+
 ```
 
 ## #3 Examples

@@ -55,7 +55,7 @@ RoutineFactory CreateRoutineFactory(
   factory.create_routine = [=]() {
     return [=]() {
       std::shared_ptr<M0> msg;
-      for (;;) {
+      while(true) {
         CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
         if (dv->TryFetch(msg)) {
           f(msg);
@@ -78,7 +78,7 @@ RoutineFactory CreateRoutineFactory(
     return [=]() {
       std::shared_ptr<M0> msg0;
       std::shared_ptr<M1> msg1;
-      for (;;) {
+      while(true) {
         CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
         if (dv->TryFetch(msg0, msg1)) {
           f(msg0, msg1);
@@ -102,7 +102,7 @@ RoutineFactory CreateRoutineFactory(
       std::shared_ptr<M0> msg0;
       std::shared_ptr<M1> msg1;
       std::shared_ptr<M2> msg2;
-      for (;;) {
+      while(true) {
         CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
         if (dv->TryFetch(msg0, msg1, msg2)) {
           f(msg0, msg1, msg2);
@@ -127,7 +127,7 @@ RoutineFactory CreateRoutineFactory(
       std::shared_ptr<M1> msg1;
       std::shared_ptr<M2> msg2;
       std::shared_ptr<M3> msg3;
-      for (;;) {
+      while(true) {
         CRoutine::GetCurrentRoutine()->set_state(RoutineState::DATA_WAIT);
         if (dv->TryFetch(msg0, msg1, msg2, msg3)) {
           f(msg0, msg1, msg2, msg3);
